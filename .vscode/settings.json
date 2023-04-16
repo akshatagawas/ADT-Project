@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/e63f5620-6525-47cc-b769-47f2f0f9a20c/resourceGroups/adt_project/providers/Microsoft.Web/sites/barneysboard",
+    "appService.deploySubpath": "."
+}
