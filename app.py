@@ -1,13 +1,18 @@
 from flask import Flask, render_template, request, json, jsonify, redirect, session, flash, url_for
 from flaskext.mysql import MySQL
-# from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import generate_password_hash, check_password_hash
-
-
+import pymysql.cursors
+import ssl
 
 
 app = Flask(__name__)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost/task_manager'
+
+
+
 app.secret_key = "barneysboard"
+
 
 
 # Define a list of protected paths that require authentication
@@ -38,25 +43,32 @@ def authenticate_user():
 
 
 # MySQL connection
-mysql = MySQL()
+# mysql = MySQL()
 
 
 # MySQL configurations 
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-app.config['MYSQL_DATABASE_DB'] = 'task_manager'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
+# app.config['MYSQL_DATABASE_USER'] = 'barney'
+# app.config['MYSQL_DATABASE_PASSWORD'] = 'board@123'
+# app.config['MYSQL_DATABASE_DB'] = 'task_manager'
+# app.config['MYSQL_DATABASE_HOST'] = 'barneysboard.mysql.database.azure.com'
+# mysql = MySQL(app)
+
+
+
+
+
+# SSL/TLS options
+ssl_ctx = ssl.create_default_context()
+ssl_ctx.check_hostname = False
+ssl_ctx.verify_mode = ssl.CERT_NONE
+
+# Connect to MySQL server with SSL/TLS encryption
 
 
 # App routes
 @app.route("/")
 def main():
     return render_template('Login.html')
-
-# @app.route("/dashboard")
-# def dashboard():
-#     return render_template('dashboard.html')
 
 
 @app.route('/register')
@@ -72,15 +84,18 @@ def signUp():
     _password = request.form['password']
 
     # Establish connection
-    conn = mysql.connect()
+    conn = pymysql.connect(
+    host='barneysboard.mysql.database.azure.com',
+    user='barney',
+    password='board@123',
+    database='task_manager',
+    ssl=ssl_ctx
+    )
 
     # Define a cursor
     cursor = conn.cursor()
 
     # Hashed Password
-    salt_length = 8
-    hash_length = 32
-    # _hashed_password = generate_password_hash(_password, method='sha256', salt_length=salt_length)[:hash_length]
     _hashed_password = generate_password_hash(_password)
 
     # Call procedure createUser
@@ -122,7 +137,13 @@ def login():
 
         # Query the "users" table to verify that the username and password are valid
         # Establish connection
-        conn = mysql.connect()
+        conn = pymysql.connect(
+        host='barneysboard.mysql.database.azure.com',
+        user='barney',
+        password='board@123',
+        database='task_manager',
+        ssl=ssl_ctx
+        )
 
         # Define a cursor
         cursor = conn.cursor()
