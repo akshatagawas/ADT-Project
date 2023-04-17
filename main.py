@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, json, jsonify, redirect, session, flash, url_for
-from flaskext.mysql import MySQL
 from flask_bcrypt import generate_password_hash, check_password_hash
 import pymysql.cursors
 import ssl
