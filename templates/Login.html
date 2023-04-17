@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/LoginStyle.css') }}">
+    
+
+    <title>Barney's Board</title>
+
+  </head>
+  <body>
+    <section class="Form my-4 mx-5" >
+        <div class="container">
+            <div class="row no-gutters">
+                <div class="col-lg-7 position-relative">
+                    <img src="{{ url_for('static', filename='images/kanban.jpg') }}" class="img-fluid" alt="kanban_img">
+                    <div class="card-img-overlay transition_text shift-up">
+                        <p class="card-title display-4 font-weight-bold">Task Manager</p>
+                        <p class="card-subtitle display-7 font-weight-bold">Manage your tasks efficiently!</p>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-5 px-5 pt-5">
+                    <h1 class="font-weight-bold py-3 log-shift-up">Login</h1>
+                    <h4 class="log-sub-shift-up">Login into your account.</h4>
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+    
+                        {% for message in messages %}
+                            <li class="log-sub-shift-up">{{ message }}</li>
+                        {% endfor %}
+                        
+                    {% endif %}
+                    {% endwith %}
+                    <form id="form-login" action="/login" method="POST" class="log-shift-up">
+                        <div class="form-row">
+                            <div class="col-lg-7">
+                                <label class="font-weight-bold shift-down">Email</label>
+                                <input type="email" placeholder="abc@example.com" class="form-control my-3 p-4" name="email">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-lg-7">
+                                <label class="font-weight-bold shift-down">Password</label>
+                                <input type="password" placeholder="******" class="form-control my-3 p-4" name="password">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-lg-7">
+                                <input type="submit" class="btn1 mt-3 mb-4" value="Login"></input>
+                            </div>
+                        </div>
+                        <a href="#">Forgot password</a>
+                        <p>Don't have an account?<a href="/register">Register here.</a></p>
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script>
+        function validateForm() {
+          // Get the values of the input fields
+          const username = document.getElementById('username').value.trim();
+          const password = document.getElementById('password').value.trim();
+  
+          // Check if both fields are non-empty
+          if (!username || !password) {
+            document.getElementById('error-message').textContent = 'Please enter a username and password.';
+            return false;
+          }
+  
+          return true;
+        }
+      </script>
+      <script>
+        $(document).ready(function() {
+          $("#form-login").submit(function(e) {
+            e.preventDefault();
+      
+            $.ajax({
+              url: "/dashboard",
+              type: "POST",
+              data: $("#form-login").serialize(),
+              success: function(response) {
+                alert(response.message);
+                window.location.href = "/dashboard"; 
+              },
+              error: function(xhr, status, error) {
+                alert(xhr.responseText);
+              }
+            });
+          });
+        });
+      </script>
+    
+  </body>
+</html>
