@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'barneysboard'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9E6E3E64EBE34DA8956255B5CB66055E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2BCBBB562F7A45E898063A4C240EEFF8 }}
