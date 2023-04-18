@@ -94,6 +94,8 @@
               data: $("#form-login").serialize(),
               success: function(response) {
                 alert(response.message);
+                console.log(response.message)
+                localStorage.setItem('username:',session['username'])
                 window.location.href = "/dashboard"; 
               },
               error: function(xhr, status, error) {

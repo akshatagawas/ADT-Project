@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, json, jsonify, redirect, session, flash, url_for
 from flask_bcrypt import generate_password_hash, check_password_hash
-import pymysql.cursors
+import pymysql
 import ssl
+from flask_session import Session
 
 
 app = Flask(__name__)
@@ -12,7 +13,12 @@ app = Flask(__name__)
 
 app.secret_key = "barneysboard"
 
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = '/tmp'
+app.config['SESSION_COOKIE_NAME'] = 'my_cookie'
+app.config['SECRET_KEY'] = 'secret_key'
 
+Session(app)
 
 # Define a list of protected paths that require authentication
 protected_paths = ['/dashboard']
@@ -32,7 +38,7 @@ def redirect_unauthenticated():
 @app.before_request
 def authenticate_user():
     if request.path in public_paths:
-        return
+        return 
     elif request.path in protected_paths:
         if not is_authenticated():
             return redirect_unauthenticated()
@@ -88,7 +94,7 @@ def signUp():
     user='barney',
     password='board@123',
     database='task_manager',
-    ssl=ssl_ctx
+    ssl=ssl_ctx,
     )
 
     # Define a cursor
@@ -127,7 +133,7 @@ def signUp():
 def login():
     if request.method == 'POST':
         # Get login information
-        print(request.form)
+        # print(request.form)
         username = request.form['email']
         password = request.form['password']
 
@@ -141,7 +147,8 @@ def login():
         user='barney',
         password='board@123',
         database='task_manager',
-        ssl=ssl_ctx
+        ssl=ssl_ctx,
+        
         )
 
         # Define a cursor
@@ -189,6 +196,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    
     # Check if user is authenticated
     if not is_authenticated():
         return redirect_unauthenticated()

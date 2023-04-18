@@ -16,6 +16,7 @@
       <body>
         <form action="/logout">
             <p class="font-weight-bold">You are logged in!</p>
+            <p>Username: {{ session.get('UID') }}</p>
             <input type="submit" class="btn1" value="Logout">
         </form>
         
