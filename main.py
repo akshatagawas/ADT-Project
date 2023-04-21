@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, json, jsonify, redirect, sess
 from flask_bcrypt import generate_password_hash, check_password_hash
 import pymysql
 import ssl
+from datetime import datetime
 from flask_session import Session
 
 
@@ -192,42 +193,202 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/get_data')
+def get_data():
+    # Fetch data from database and convert it to JSON
+    uid = session.get('UID')
+   
+    # Render dashboard page for authenticated users
+    conn = pymysql.connect(
+    host='barneysboard.mysql.database.azure.com',
+    user='barney',
+    password='board@123',
+    database='task_manager',
+    ssl=ssl_ctx,
+    )
+    c = conn.cursor()
+    c.execute("SELECT * FROM task WHERE UID=%s", (uid,))
+    
+    rows = c.fetchall()
+    
+    # Convert timedelta object to string
+    data = []
+    for row in rows:
+        # duration_str = str(row[5])
+        data.append({
+            'TID': row[0],
+            'UID': row[1],
+            'TASK_NAME': row[2],
+            'TASK_DESCRIPTION': row[3],
+            'TASK_STATUS': row[4]
+
+        })
+
+    
+    if len(data) != 0:
+    
+        return jsonify(data)
+
+    else:
+        # Prepare the error message
+        message = {'success': False, 'error': data}
+        return(message)
+    
 
 
 @app.route('/dashboard')
 def dashboard():
     
-    # Check if user is authenticated
-    if not is_authenticated():
-        return redirect_unauthenticated()
     
-    # Render dashboard page for authenticated users
-    return render_template('dashboard.html')
+    # return render_template('dashboard.html', data=data)
+    now = datetime.utcnow()
+    return render_template('dashboard.html', now=now)
 
 
 
-# # Profile page
-# @app.route('/profile')
-# def profile():
-#     if 'user_id' in session:
-#         # Get the user's information from the database
-#         cursor = db.cursor()
-#         query = "SELECT * FROM users WHERE id = %s"
-#         values = (session['user_id'],)
-#         cursor.execute(query, values)
-#         user = cursor.fetchone()
+@app.route('/get_task/<int:task_id>', methods=['GET'])
+def get_task(task_id):
+    try:
+        conn = pymysql.connect(
+        host='barneysboard.mysql.database.azure.com',
+        user='barney',
+        password='board@123',
+        database='task_manager',
+        ssl=ssl_ctx,
+        )
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM TASK WHERE TID = %s', (task_id,))
+        task = cursor.fetchone()
+        if not task:
+            return jsonify({'error': f'Task with id {task_id} not found'})
+        task_dict = {
+            'TID': task[0],
+            'UID': task[1],
+            'TASK_NAME': task[2],
+            'TASK_DESCRIPTION': task[3],
+            'TASK_STATUS': task[4]
+        }
+        return jsonify(task_dict)
+    except Exception as e:
+        print(f'Error fetching task data: {str(e)}')
+        return jsonify({'error': 'Error fetching task data'})
+    finally:
+        cursor.close()
+        conn.close()
 
-#         if user is not None:
-#             # Render the profile page with the user's information
-#             return render_template('profile.html', user=user)
-#         else:
-#             # If the user does not exist, show an error message and redirect to the login page
-#             flash('User not found', 'danger')
-#             return redirect(url_for('login'))
-#     else:
-#         # If the user is not logged in, redirect to the login page
-#         flash('Please log in', 'warning')
-#         return redirect(url_for('login'))
+
+
+# Adding new task to database
+@app.route('/new_task', methods=['GET', 'POST'])
+def new_task():
+    # read the posted values from the UI 
+    uid = session.get('UID')
+    task_name = request.form['task-name']
+    task_description = request.form['task-description']
+    task_status = request.form['task-status']
+
+
+
+    # Establish connection
+    conn = pymysql.connect(
+    host='barneysboard.mysql.database.azure.com',
+    user='barney',
+    password='board@123',
+    database='task_manager',
+    ssl=ssl_ctx,
+    )
+
+    # Define a cursor & insert data
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO TASK (UID, TASK_NAME, TASK_DESCRIPTION, TASK_STATUS) VALUES (%s, %s, %s, %s)',
+                   (uid, task_name, task_description, task_status))
+    conn.commit()
+    cursor.close()
+
+
+    # Check if user is created
+    data = cursor.fetchall()
+
+
+    if len(data) == 0:
+        # Commit the transaction and close the connection
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # Prepare the success message and the redirect URL
+        message = {'success': True, 'message': 'User created successfully!'}
+
+        # Return the success message as a JSON object with the redirect URL and HTTP status code 200
+        return redirect("/dashboard")
+    else:
+        # Prepare the error message
+        message = {'success': False, 'error': data}
+
+        # Return the error message as a JSON object with HTTP status code 400
+        return jsonify(message), 400
+
+
+@app.route('/delete_task/<int:tid>', methods=['DELETE'])
+def delete_task(tid):
+  conn = pymysql.connect(
+    host='barneysboard.mysql.database.azure.com',
+    user='barney',
+    password='board@123',
+    database='task_manager',
+    ssl=ssl_ctx,
+    )
+  cursor = conn.cursor()
+  cursor.execute('DELETE FROM TASK WHERE TID = %s', (tid,))
+  conn.commit()
+  return '', 204
+
+
+@app.route('/edit_task', methods=['POST'])
+def edit_task():
+    # Get form data from request
+    # data = request.get_json()
+    # return(json.dumps(data))
+    task_name = request.form['task-name']
+    task_id = request.form['task-id']
+    task_description = request.form['task-description']
+    task_status = request.form['task-status']
+
+    # task_data = {
+    #     'task_name': task_name,
+    #     'task_id': task_id,
+    #     'task_description': task_description,
+    #     'task_status': task_status
+    # }
+    
+    # # return the task data as JSON
+    # return jsonify(task_data)
+    # task_id = data.get('')
+    # task_name = data.get('task_name')
+    # task_description = data.get('task_description')
+    # task_status = data.get('task_status')
+
+    # tid = '13'
+    # task_name = 'Task 13'
+    # task_description = 'completed'
+    # task_status = 'COMPLETE'
+
+    # Connect to database and update task record
+    conn = pymysql.connect(
+    host='barneysboard.mysql.database.azure.com',
+    user='barney',
+    password='board@123',
+    database='task_manager',
+    ssl=ssl_ctx,
+    )
+    cursor = conn.cursor()
+    cursor.execute('UPDATE TASK SET TASK_NAME=%s, TASK_DESCRIPTION=%s, TASK_STATUS=%s WHERE TID=%s',
+    (task_name, task_description, task_status, task_id))
+    conn.commit()
+
+    # Return success message
+    return redirect('/dashboard')
+
 
 # Logout route
 @app.route('/logout')

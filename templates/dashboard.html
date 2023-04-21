@@ -1,24 +1,326 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE-edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="../static/css/main.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-Qrvx+ZIgHg/BJQQ8VcW/lN9X7y2jkD25vM8IOmrWpZuN7ZGKdYvIKV8WcGXdX9V7aQJ1XBvV60EiNNkx+zV7Zw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-TZhjq3X8WpSIV7+uTQQJnnT7b4xWf4a7LnJBL1/XgG7nvXfB9Qr7rZRyETUpD+gGxEmJp/jPyBmPLslc/rnZw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-lYJeJfjhBbdzFpoQiGC8n+q5hv5P5f5G5Swv9kW0Umbdq6UaR6/ucwvU8Wz+DY7lB0c4B4m4JcZ/sDVEOzM1Cw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+
+  <!-- <script src="script.js"></script> -->
+    <title>Barneys Board</title>
+</head>
+<body>
+
+    <div class="position-relative upper-section">
+      <a href="/logout" class="card-img-overlay position-absolute shift-right-corner">
+        <button class="btn btn-primary mt-2 ">Logout</button>
+      </a>
+      <img class="fit" src="https://blog.flamingtext.com/blog/2023/04/19/flamingtext_com_1681868516_146043498.png" border="0" alt="Logo Design by FlamingText.com" >
+    </div>
     
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/LoginStyle.css') }}">
-    
-        <title>Hello, world!</title>
-    
-      </head>
-      <body>
-        <form action="/logout">
-            <p class="font-weight-bold">You are logged in!</p>
-            <p>Username: {{ session.get('UID') }}</p>
-            <input type="submit" class="btn1" value="Logout">
+    <div class="container">
+
+        
+        
+        <i class="fa-solid fa-pen-to-square"></i>
+        <h1 class="font-weight-bold" class="todo"> To Do</h1>
+        <table id="incomplete" class="todo">
+          
+          <thead>
+              <tr>
+                  <th>Task No.</th>
+                  <th>Task Name</th>
+                  <th>Task Description</th>
+                  <th>Task Status</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Table rows will be added dynamically by JavaScript -->
+          </tbody>
+      </table>
+      <h1 class="font-weight-bold"> In Progress</h1>
+      <table id="inprogress" class="inprogress">
+          <thead>
+              <tr>
+                  <th>Task No.</th>
+                  
+                  <th>Task Name</th>
+                  <th>Task Description</th>
+                  <th>Task Status</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Table rows will be added dynamically by JavaScript -->
+          </tbody>
+      </table>
+      <h1 class="font-weight-bold">Done</h1>
+      <table id="complete" class="done">
+          <thead>
+              <tr>
+                <th>Task No.</th>
+                  
+                  <th>Task Name</th>
+                  <th>Task Description</th>
+                  <th>Task Status</th>
+                  <th>Actions</th>
+
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Table rows will be added dynamically by JavaScript -->
+          </tbody>
+      </table>
+      
+
+        <div class="task-button-block d-flex justify-content-center">
+          <button id="myButton" class="btn btn-primary mt-5 mb-5 mx-auto btn-lg custom-width" >Create new task</span>
+          <button id="openModalButton" class="btn btn-primary mt-5 mb-5 mx-auto btn-lg custom-width shift-right" >Edit</button>
+        </div>
+
+        <form id="new_task_form" action="/new_task" method="POST" class="">
+          <div class="modal" tabindex="-1" role="dialog" id="myModal">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">New Task</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <span class="form-row">
+                    <label class="form-row-label" for="task-name">Task Name</label>
+                    <input class="form-row-input" type="text" name="task-name" id="task-name">
+                </span>
+                <span class="form-row">
+                    <label class="form-row-label" for="task-name">Description</label>
+                    <textarea class="form-row-input" name="task-description" id="task-description" cols="70" rows="10"></textarea>
+                </span>
+                <span class="form-row">
+                    <label class="form-row-label" for="task-name">Status</label>
+                    <select class="form-row-input" name="task-status" id="task-status">
+                        <option value="INCOMPLETE">To Do</option>
+                        <option value="IN PROGRESS">In Progress</option>
+                        <option value="COMPLETE">Done</option>
+                    </select>
+                </span>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" >Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </form>
+
+
+
+        <form id="edit_task_form" action="/edit_task" method="POST" class="">
+          <div class="modal" tabindex="-1" role="dialog" id="myEditModal">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">New Task</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <span class="form-row">
+                    <label class="form-row-label" for="task-name">Task Name</label>
+                    <input class="form-row-input" type="text" name="task-name" id="task-name">
+                    <label class="form-row-label" for="task-id">Task No.</label>
+                    <input class="form-row-input" type="text" name="task-id" id="task-id">
+                  </span>
+                  <span class="form-row">
+                    <label class="form-row-label" for="task-name">Description</label>
+                    <textarea class="form-row-input" name="task-description" id="task-description" cols="70" rows="10"></textarea>
+                  </span>
+                  <span class="form-row">
+                    <label class="form-row-label" for="task-name">Status</label>
+                    <select class="form-row-input" name="task-status" id="task-status">
+                      <option value="INCOMPLETE">To Do</option>
+                      <option value="IN PROGRESS">In Progress</option>
+                      <option value="COMPLETE">Done</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="saveTaskButton">Save Changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
         
-      </body>
+
+
+
+        </form>
+
+      
+
+
+        
+        
+
+    </div>
+</body>
+
+
+
+
+
+
+
+
+<!-- Fetch all data from database -->
+<script>
+  window.onload = function() {
+    fetch('/get_data')
+      .then(response => response.json())
+      .then(data =>  {
+        console.log(data)
+        // Loop through the data and create table rows
+        data.forEach(item => {
+          let tableRow = document.createElement('tr');
+          tableRow.id = item.TID; 
+          tableRow.innerHTML = `
+            <td class="content-style">${item.TID}</td>
+           
+            <td class="content-style">${item.TASK_NAME}</td>
+            <td class="content-style">${item.TASK_DESCRIPTION}</td>
+            <td class="content-style">${item.TASK_STATUS}</td>
+            <td>
+                <button id="myDeleteButton" onclick="deleteTask(${item.TID})" class="btn btn-primary mt-5 mb-5 mx-auto shift-up" >Delete</span>
+            </td>
+           
+
+          `;
+
+          let tableId = item.TASK_STATUS.toLowerCase().replace(/\s/g, '');
+          let table = document.getElementById(tableId);
+          if (table) {
+            table.querySelector('tbody').appendChild(tableRow);
+          } else {
+            console.error(`Table with id '${tableId}' not found`);
+          }
+          
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }
+</script>
+
+<!-- Adding actions to delete values from the database -->
+<script>
+  function deleteTask(tid) {
+  fetch(`/delete_task/${tid}`, { method: 'DELETE' })
+    .then(response => {
+      if (response.ok) {
+        // Reload the page to show the updated data
+        location.reload();
+      } else {
+        console.error('Error deleting task:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Error deleting task:', error));
+}
+</script>
+<style>
+  td a img {
+    width: 20px;
+    height: 20px;
+  }
+
+</style>
+
+
+<script>
+$(document).ready(function(){
+  $("#openModalButton").click(function(){
+    $("#myEditModal").modal();
+  });
+});
+</script>
+
+<!-- Submit changes to backend -->
+
+<script>
+  $(document).ready(function(){
+    $("#myButton").click(function(){
+      $("#myModal").modal();
+    });
+  });
+</script>
+
+<script>
+  function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.currentTarget.appendChild(document.getElementById(data));
+}
+
+
+
+function saveTask(){
+    // var saveButton = document.getElementById("save-button");
+    // var editButton = document.getElementById("edit-button");
+    // if (saveButton.style.display === "none") {
+    //     saveButton.style.display = "block";
+    //     editButton.style.display = "none";
+    // } else{
+    //     saveButton.style.display = "none";
+    //     editButton.style.display = "block";
+    // }
+
+    var todo = document.getElementById("todo");
+    var taskName = document.getElementById("task-name").value;
+    todo.innerHTML += `
+    <div class="task" id="${taskName.toLowerCase().split(" ").join("")}" draggable="true" ondragstart="drag(event)">
+        <span>${taskName}</span>
+    </div>
+    `
+}
+
+
+
+// TASK UPDATE
+
+function editTask(){
+    var saveButton = document.getElementById("save-button");
+    var editButton = document.getElementById("edit-button");
+    if (saveButton.style.display === "none") {
+        saveButton.style.display = "block";
+        editButton.style.display = "none";
+    } else{
+        saveButton.style.display = "none";
+        editButton.style.display = "block";
+    }
+}
+
+</script>
 </html>
