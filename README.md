@@ -16,3 +16,5 @@ The project is made using HTML, CSS, and Javascript for the frontend, while the 
 ## Dashboard:
 <img width="960" alt="Screenshot 2023-04-18 230216" src="https://user-images.githubusercontent.com/68987251/233730298-f9c6e645-127a-4163-9f1a-90348dcbcfca.png">
 <img width="960" alt="Screenshot 2023-04-18 230305" src="https://user-images.githubusercontent.com/68987251/233730358-c3cac742-2aff-4840-bf10-c31c51684afb.png">
+
+Tutorial: https://youtu.be/yv0DzM9slmo
